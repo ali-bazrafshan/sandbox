@@ -1,11 +1,13 @@
+using System.Reflection.Metadata.Ecma335;
+
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello.");
 app.MapGet("/person", () => Person.All);
-app.MapGet("/person/{id}", (int id) => Person.All[id]);
+app.MapGet("/person/{id}", Handlers.GetPerson);
 app.MapPost("/person", Handlers.AddPerson);
-app.MapPut("/person", Handlers.ReplacePerson);
+app.MapPut("/person/{id}", Handlers.ReplacePerson);
 app.MapDelete("/person/{id}", Handlers.DeletePerson);
 
 app.Run();
@@ -17,17 +19,30 @@ public record Person(string FirstName, string LastName)
 
 class Handlers
 {
-    public static void AddPerson(Person person)
+    public static IResult GetPerson(int id)
     {
-        Person.All.Add(Person.All.Count + 1, person);
+        return Person.All.TryGetValue(id, out var result) ? TypedResults.Ok(result) : TypedResults.NotFound();
     }
 
-    public static void ReplacePerson(int id, Person person)
+    public static IResult AddPerson(Person person)
     {
-        Person.All[id] = person;
+        Person.All.Add(Person.All.Count + 1, person);
+        return TypedResults.Ok();
     }
-    public static void DeletePerson(int id)
+
+    public static IResult ReplacePerson(int id, Person person)
     {
-        Person.All.Remove(id);
+        if (Person.All.Remove(id))
+        {
+            Person.All[id] = person;
+            return TypedResults.NoContent();
+        }
+
+        return TypedResults.NotFound();
+    }
+
+    public static IResult DeletePerson(int id)
+    {
+        return Person.All.Remove(id) ? TypedResults.NoContent() : TypedResults.NotFound();
     }
 }
