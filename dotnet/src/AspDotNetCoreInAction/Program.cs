@@ -1,14 +1,24 @@
+using System.Net.Mime;
 using System.Reflection.Metadata.Ecma335;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 app.MapGet("/", () => "Hello.");
+
 app.MapGet("/person", () => Person.All);
 app.MapGet("/person/{id}", Handlers.GetPerson);
 app.MapPost("/person", Handlers.AddPerson);
 app.MapPut("/person/{id}", Handlers.ReplacePerson);
 app.MapDelete("/person/{id}", Handlers.DeletePerson);
+
+app.MapGet("/custom", async (HttpResponse response) =>
+{
+    response.StatusCode = 426;
+    response.ContentType = MediaTypeNames.Text.Plain;
+    response.Headers["MyHeader"] = "MyHeaderValue";
+    return response.WriteAsync("Update application!");
+});
 
 app.Run();
 
