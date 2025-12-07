@@ -16,7 +16,7 @@ app.UseStatusCodePages(); // Makes all error responses return Problem Details
 app.MapGet("/", () => "Hello.");
 
 app.MapGet("/person", () => Person.All);
-app.MapGet("/person/{id}", Handlers.GetPerson);
+app.MapGet("/person/{id}", Handlers.GetPerson).AddEndpointFilterFactory(ValidationHelper.ValidateIdFactory);
 app.MapPost("/person", Handlers.AddPerson);
 app.MapPost("person/{id}", Handlers.InsertPerson)
     .AddEndpointFilter(ValidationHelper.ValidateId)
@@ -112,5 +112,37 @@ class ValidationHelper
             });
         }
         return await next(context);
+    }
+
+    internal static EndpointFilterDelegate ValidateIdFactory(EndpointFilterFactoryContext context, EndpointFilterDelegate next)
+    {
+        var parameters = context.MethodInfo.GetParameters();
+        int? idIndex = null;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            if (parameters[i].Name == "id")
+            {
+                idIndex = i;
+                break;
+            }
+        }
+
+        if (!idIndex.HasValue)
+        {
+            return next;
+        }
+
+        return async (invocationContext) =>
+        {
+            var id = invocationContext.GetArgument<int>(idIndex.Value);
+            if (id <= 0)
+            {
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    { "id", new[] {"Invalid ID. ID must be a positive integer."} }
+                });
+            }
+            return await next(invocationContext);
+        };
     }
 }
