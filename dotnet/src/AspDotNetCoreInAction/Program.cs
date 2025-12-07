@@ -22,7 +22,7 @@ app.MapPost("person/{id}", Handlers.InsertPerson);
 app.MapPut("/person/{id}", Handlers.ReplacePerson);
 app.MapDelete("/person/{id}", Handlers.DeletePerson);
 
-app.MapGet("/custom", async (HttpResponse response) =>
+app.MapGet("/custom", (HttpResponse response) =>
 {
     response.StatusCode = 426;
     response.ContentType = MediaTypeNames.Text.Plain;
@@ -34,6 +34,8 @@ app.MapGet("/throw", () =>
 {
     throw new Exception("Random exception.");
 });
+
+app.MapGet("/file", () => Results.File("sample.png", fileDownloadName: "blue.png", contentType: "image/png"));
 
 app.Run();
 
