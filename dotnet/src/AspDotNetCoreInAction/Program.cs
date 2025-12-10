@@ -17,9 +17,9 @@ app.MapGet("/", () => "Hello.");
 
 var personApi = app.MapGroup("/person").AddEndpointFilterFactory(ValidationHelper.ValidateIdFactory);
 personApi.MapGet("/", () => Person.All);
-personApi.MapPost("/", Handlers.AddPerson);
-personApi.MapGet("/{id}", Handlers.GetPerson);
-personApi.MapPost("/{id}", Handlers.InsertPerson)
+personApi.MapPost("/", PersonHandlers.AddPerson);
+personApi.MapGet("/{id}", PersonHandlers.GetPerson);
+personApi.MapPost("/{id}", PersonHandlers.InsertPerson)
     .AddEndpointFilter(async (context, next) =>
     {
         app.Logger.LogInformation("Logging...");
@@ -27,8 +27,8 @@ personApi.MapPost("/{id}", Handlers.InsertPerson)
         app.Logger.LogInformation($"Handler result: {result}");
         return result;
     });
-personApi.MapPut("{id}", Handlers.ReplacePerson);
-personApi.MapDelete("{id}", Handlers.DeletePerson);
+personApi.MapPut("{id}", PersonHandlers.ReplacePerson);
+personApi.MapDelete("{id}", PersonHandlers.DeletePerson);
 
 app.MapGet("/custom", (HttpResponse response) =>
 {
@@ -45,14 +45,43 @@ app.MapGet("/throw", () =>
 
 app.MapGet("/file", () => Results.File("sample.png", fileDownloadName: "blue.png", contentType: "image/png"));
 
+app.MapPost("/product/{category}/{title}/{id}/{price}", ProductHandlers.AddProduct);
+app.MapGet("/product/{category}/{title=all}/{id?}", ProductHandlers.GetProduct);
+app.MapGet("/product", () => Product.All);
+
 app.Run();
+
+public record Product(string Category, string Title, int Id, int Price)
+{
+    public static readonly List<Product> All = new();
+}
+
+class ProductHandlers
+{
+    internal static IResult AddProduct(string category, string title, int id, int price)
+    {
+        var product = new Product(category, title, id, price);
+        Product.All.Add(product);
+        return TypedResults.Created($"/product/{category}/{title}/{id}", product);
+    }
+
+    internal static IResult GetProduct(string category, string title, int? id)
+    {
+        var product = Product.All.Find(
+            p => p.Category == category &&
+            (title == "all" || p.Title == title) &&
+            (!id.HasValue || p.Id == id.Value) 
+        );
+        return TypedResults.Ok(product);
+    }
+}
 
 public record Person(string FirstName, string LastName)
 {
     public static readonly Dictionary<int, Person> All = new();
 }
 
-class Handlers
+class PersonHandlers
 {
     internal static IResult GetPerson(int id)
     {
