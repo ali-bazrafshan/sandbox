@@ -60,17 +60,25 @@ class ProductHandlers
 {
     internal static IResult AddProduct(string category, string title, int id, int price)
     {
+        if (Product.All.Any(p => p.Id == id))
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                { "id", new[] {"Id is invalid."} }
+            });
+        }
         var product = new Product(category, title, id, price);
         Product.All.Add(product);
         return TypedResults.Created($"/product/{category}/{title}/{id}", product);
     }
 
+    /// <param name="id">Optional. Used for disambiguation.</param>
     internal static IResult GetProduct(string category, string title, int? id)
     {
-        var product = Product.All.Find(
+        var product = Product.All.Where(
             p => p.Category == category &&
             (title == "all" || p.Title == title) &&
-            (!id.HasValue || p.Id == id.Value) 
+            (!id.HasValue || p.Id == id.Value)
         );
         return TypedResults.Ok(product);
     }
