@@ -3,6 +3,7 @@ using System.Net.Mime;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails(); // Makes exception handlers return Problem Details
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -48,6 +49,8 @@ app.MapGet("/file", () => Results.File("sample.png", fileDownloadName: "blue.png
 app.MapPost("/product/{category}/{title}/{id}/{price}", ProductHandlers.AddProduct);
 app.MapGet("/product/{category}/{title=all}/{id?}", ProductHandlers.GetProduct);
 app.MapGet("/product", () => Product.All);
+
+app.MapHealthChecks("/healthz");
 
 app.Run();
 
