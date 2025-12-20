@@ -77,7 +77,13 @@ class ProductHandlers
         return TypedResults.Created($"/product/{category}/{title}/{id}", product);
     }
 
+    /// <summary>
+    /// Get a product.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <param name="title"></param>
     /// <param name="id">Optional. Used for disambiguation.</param>
+    /// <returns></returns>
     internal static IResult GetProduct(string category, string title, int? id)
     {
         var product = Product.All.Where(
