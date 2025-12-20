@@ -1,0 +1,26 @@
+### Create person 1
+POST https://localhost:7156/person
+Content-Type: application/json
+{
+  "firstname": "Ali",
+  "lastname": "Bazrafshan"
+}
+
+### Create person 2
+POST https://localhost:7156/person
+Content-Type: application/json
+{
+  "firstname": "Hosein",
+  "lastname": "Ahmadi"
+}
+
+### Create person 3
+POST https://localhost:7156/person
+Content-Type: application/json
+{
+  "firstname": "Reza",
+  "lastname": "Taheri"
+}
+
+### Get a list of people
+GET https://localhost:7156/person
