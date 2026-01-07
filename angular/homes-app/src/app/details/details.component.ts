@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HousingLocation } from '../housing-location';
@@ -44,7 +44,7 @@ import { Person } from '../person';
   `,
   styleUrls: ['./details.component.css']
 })
-export class DetailsComponent {
+export class DetailsComponent implements OnInit {
   housingService: HousingService = inject(HousingService);
   route: ActivatedRoute = inject(ActivatedRoute);
   housingLocation: HousingLocation | undefined;
@@ -55,15 +55,9 @@ export class DetailsComponent {
   });
   model: Person = new Person();
 
-  constructor() {
+  async ngOnInit(): Promise<void> {
     const housingLocationId = Number(this.route.snapshot.params["id"]);
-    try
-    {
-      this.housingLocation = this.housingService.getHousingLocationById(housingLocationId);
-    }
-    catch
-    {
-    }
+    this.housingLocation = await this.housingService.getHousingLocationById(housingLocationId);
   }
 
   submitApplication() {

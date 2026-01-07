@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HousingLocationComponent } from '../housing-location/housing-location.component';
 import { HousingService } from '../housing.service';
@@ -21,12 +21,11 @@ import { HousingLocation } from '../housing-location';
   `,
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit{
   housingService: HousingService = inject(HousingService);
   housingLocationList: HousingLocation[] = [];
 
-  constructor()
-  {
-    this.housingLocationList = this.housingService.getAllHousingLocations();
+  async ngOnInit(): Promise<void> {
+    this.housingLocationList = await this.housingService.getAllHousingLocations();
   }
 }
