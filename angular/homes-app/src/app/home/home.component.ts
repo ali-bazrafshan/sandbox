@@ -15,7 +15,7 @@ import { HousingLocation } from '../housing-location';
         <button class="primary" type="button">Search</button>
       </form>
     </section>
-    <section [class]="p">
+    <section class="results">
       <app-housing-location *ngFor="let housingLocation of housingLocationList" [housingLocation]="housingLocation"></app-housing-location>
     </section>
   `,
@@ -24,7 +24,6 @@ import { HousingLocation } from '../housing-location';
 export class HomeComponent {
   housingService: HousingService = inject(HousingService);
   housingLocationList: HousingLocation[] = [];
-  p: string = "hello";
 
   constructor()
   {

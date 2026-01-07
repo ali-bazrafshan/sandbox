@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HousingLocation } from '../housing-location';
 import { HousingService } from '../housing.service';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Person } from '../person';
 
 @Component({
   selector: 'app-details',
@@ -28,13 +29,13 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
       <h2 class="section-heading">Apply to live here</h2>
       <form [formGroup]="applyForm" (submit)="submitApplication()">
         <label for="first-name">First Name</label>
-        <input id="first-name" type="text" formControlName="firstName">
+        <input id="first-name" type="text" formControlName="firstName" [(ngModel)]="model.firstName">
 
         <label for="last-name">Last Name</label>
-        <input id="last-name" type="text" formControlName="lastName">
+        <input id="last-name" type="text" formControlName="lastName" [(ngModel)]="model.lastName">
 
         <label for="email">Email</label>
-        <input id="email" type="email" formControlName="email">
+        <input id="email" type="email" formControlName="email" [ngModel]="model.email">
 
         <button type="submit" class="primary">Apply</button>
       </form>
@@ -51,7 +52,8 @@ export class DetailsComponent {
     firstName: new FormControl(''),
     lastName: new FormControl(''),
     email: new FormControl('')
-  })
+  });
+  model: Person = new Person();
 
   constructor() {
     const housingLocationId = Number(this.route.snapshot.params["id"]);
@@ -65,10 +67,16 @@ export class DetailsComponent {
   }
 
   submitApplication() {
-     this.housingService.submitApplication(
-      this.applyForm.value.firstName ?? '',
-      this.applyForm.value.lastName ?? '',
-      this.applyForm.value.email ?? '',
+    //  this.housingService.submitApplication(
+    //   this.applyForm.value.firstName ?? '',
+    //   this.applyForm.value.lastName ?? '',
+    //   this.applyForm.value.email ?? '',
+    // );
+
+    this.housingService.submitApplication(
+      this.model.firstName,
+      this.model.lastName,
+      this.model.email
     );
   }
 }
