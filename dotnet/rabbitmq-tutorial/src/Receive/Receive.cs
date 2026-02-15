@@ -11,7 +11,7 @@ using var channel = await connection.CreateChannelAsync();
 
 // Consumer also declares the queue, because it might not be created by a publisher yet
 await channel.QueueDeclareAsync(
-    queue: "hello",
+    queue: "test-queue",
     durable: false,
     exclusive: false,
     autoDelete: false,
@@ -20,15 +20,19 @@ await channel.QueueDeclareAsync(
 
 // Register a consumer
 var consumer = new AsyncEventingBasicConsumer(channel);
-consumer.ReceivedAsync += (model, ea) =>
+consumer.ReceivedAsync += async (model, ea) =>
 {
     var message = Encoding.UTF8.GetString(ea.Body.ToArray());
-    Console.WriteLine($"Received {message}");
-    return Task.CompletedTask;
+    Console.WriteLine($" [x] Received {message}");
+
+    int dots = message.Split('.').Length - 1;
+    await Task.Delay(dots * 1000);
+
+    Console.WriteLine(" [x] Done");
 };
 
 await channel.BasicConsumeAsync(
-    queue: "hello",
+    queue: "test-queue",
     autoAck: true,
     consumer: consumer
 );

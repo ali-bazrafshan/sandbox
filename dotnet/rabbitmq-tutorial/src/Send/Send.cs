@@ -12,7 +12,7 @@ using var channel = await connection.CreateChannelAsync();
 
 // Create a queue. Idempotent: declaring an already existing queue will do nothing
 await channel.QueueDeclareAsync(
-    queue: "hello",
+    queue: "test-queue",
     durable: false,
     exclusive: false,
     autoDelete: false,
@@ -20,8 +20,22 @@ await channel.QueueDeclareAsync(
 );
 
 // Publish a message
-await channel.BasicPublishAsync(
-    exchange: string.Empty,
-    routingKey: "hello",
-    body: Encoding.UTF8.GetBytes("Hello World!")
-);
+var message = GetMessage(args);
+if (message != string.Empty)
+{
+    await channel.BasicPublishAsync(
+        exchange: string.Empty,
+        routingKey: "test-queue",
+        body: Encoding.UTF8.GetBytes(message)
+    );
+    Console.WriteLine($" [x] Sent {message}");
+}
+else
+{
+    Console.WriteLine("Invalid input.");
+}
+
+static string GetMessage(string[] args)
+{
+    return string.Join(' ', args);
+}
