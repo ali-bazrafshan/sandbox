@@ -29,11 +29,13 @@ consumer.ReceivedAsync += async (model, ea) =>
     await Task.Delay(dots * 1000);
 
     Console.WriteLine(" [x] Done");
+
+    await channel.BasicAckAsync(deliveryTag: ea.DeliveryTag, multiple: false);
 };
 
 await channel.BasicConsumeAsync(
     queue: "test-queue",
-    autoAck: true,
+    autoAck: false,
     consumer: consumer
 );
 
