@@ -2,6 +2,15 @@
 using RabbitMQ.Client.Events;
 using System.Text;
 
+if (args.Length < 1)
+{
+    Console.Error.WriteLine("Usage: {0} [info] [warning] [error]", Environment.GetCommandLineArgs()[0]);
+    Console.WriteLine(" Press [enter] to exit.");
+    Console.ReadLine();
+    Environment.ExitCode = 1;
+    return;
+}
+
 var factory = new ConnectionFactory
 {
     HostName = "localhost",
@@ -15,8 +24,10 @@ await channel.ExchangeDeclareAsync(exchange: "logs", type: ExchangeType.Fanout);
 // Create a temporary queue with a random name
 var queue = await channel.QueueDeclareAsync();
 
-// Bind the exchange to the queue
-await channel.QueueBindAsync(queue: queue.QueueName, exchange: "logs", routingKey: string.Empty);
+foreach (var arg in args)
+{
+    await channel.QueueBindAsync(queue: queue.QueueName, exchange: "direct_logs", routingKey: arg);
+}
 
 // Register a consumer
 var consumer = new AsyncEventingBasicConsumer(channel);
